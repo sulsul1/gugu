@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>술술 픽셀아트</title>
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/maru-buri.css" rel="stylesheet">
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-gothic.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200..900&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <div class="전체">
+        <div class="상단">
+            <h1 class="title">
+                <div id="icon"></div> 술술 픽셀아트
+            </h1>
+            <div class="samples">
+                <div id="전갈" class="sample">전갈</div>
+                <div id="소방차" class="sample">소방차</div>
+                <div id="꽃" class="sample">꽃</div>
+                <div id="딸기" class="sample">딸기</div>
+
+            </div>
+        </div>
+
+        <div class="메인">
+
+
+            <div class="content" id="pixelDiv"></div>
+            <div class="content" id="propert">
+                <div id="selectColorBox"></div>
+                <div id="colorList"></div>
+                <div id="controlPad">
+                    <button id="칠하기">칠하기</button>
+                    <button id="전부지우기">지우기</button>
+                    <button id="저장하기">저장하기</button>
+                    <button id="불러오기">불러오기</button>
+                </div>
+            </div>
+            <div class="content" id="saveTheImages">
+                <div id="selectColorBox">좌표로 입력하기</div>
+                <textarea id='txtArea' style="width:98%; height:49%; font-size: 16px;"></textarea>
+                <div id="controlPad">
+                    <!-- <label for="levelInput">0초</label>
+                    <input type="range" id="levelInput" min="0" max="1000" step="100" style="width: 200px">1초 -->
+                    <button id="좌표가져오기" style="width:6rem;">좌표로</button>
+                    <button id="좌표표시" style="width:6rem;">그림으로</button>
+                    <button id="팔레트" style="width:6rem;">팔레트</button>
+                    <button id="지우기" style="width:6rem">지우기</button>
+
+
+                    <!-- <button id="이동하기">이동하기</button> -->
+                    <!-- <button id="멈추기">멈추기</button> -->
+
+                </div>
+            </div>
+
+            <div class="하단">
+
+            </div>
+
+        </div>
+    </div>
+    <div class="copyright">Copyright @ MoonSeungHwan | All Rights Reserved</div>
+    <div class="choiceUser"></div>
+
+
+    <script>
+        var color = 9;
+        var colorName = ["빨강", "주황", "노랑", "초록", "파랑", "남색", "보라", "핑크", "검정", "흰색"];
+        var colorList = ["#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#0000ff", "#000080", "#800080", "#ff69b4", "#000000", "#ffffff"];
+        var pixelBox = document.getElementById("pixelDiv")
+        var selectBox = document.getElementById("selectColorBox")
+        var colorBox = document.getElementById("colorList")
+        let xOffset = 0; // 초기 x축 이동량
+        const canvasWidth = 10; // 캔버스 너비 (픽셀 개수 기준)
+        var 전갈데이터 = "9\n2,9,8\n6,9,8\n3,8,8\n5,8,8\n3,7,0\n4,7,8\n5,7,0\n3,6,8\n4,6,8\n5,6,8\n3,5,8\n4,5,8\n5,5,8\n3,4,8\n4,4,8\n5,4,8\n3,3,8\n4,3,8\n5,3,8\n7,3,8\n4,2,8\n7,2,8\n4,1,8\n5,1,8\n6,1,8\n7,1,8"
+        var 소방차데이터 = "9\n4,6,1\n5,6,4\n4,5,1\n4,4,1\n2,3,0\n3,3,0\n4,3,1\n5,3,0\n2,2,0\n3,2,5\n4,2,0\n5,2,0\n6,2,0\n7,2,0\n2,1,0\n3,1,8\n4,1,0\n5,1,0\n6,1,8\n7,1,0"
+        var 꽃데이터 = "9\n4,10,7\n3,9,7\n4,9,2\n5,9,7\n10,9,0\n1,8,0\n4,8,7\n9,8,0\n10,8,2\n7,7,7\n10,7,0\n2,6,6\n6,6,7\n7,6,0\n8,6,7\n1,5,6\n2,5,7\n3,5,6\n7,5,7\n2,4,6\n6,3,1\n10,3,0\n1,2,0\n5,2,1\n6,2,0\n7,2,1\n9,2,0\n10,2,2\n6,1,1\n10,1,0"
+        var 딸기데이터 = "9\n4,9,3\n7,9,3\n5,8,3\n6,8,3\n4,7,0\n5,7,0\n6,7,0\n7,7,0\n3,6,0\n4,6,8\n5,6,0\n6,6,0\n7,6,8\n8,6,0\n3,5,0\n4,5,0\n5,5,0\n6,5,8\n7,5,0\n8,5,0\n3,4,0\n4,4,8\n5,4,0\n6,4,0\n7,4,0\n8,4,0\n4,3,0\n5,3,0\n6,3,8\n7,3,0\n4,2,0\n5,2,8\n6,2,0\n7,2,0\n5,1,0\n6,1,0"
+
+        function drawFromCoordinates(coordinates) { //좌표로 그리기
+
+            const backgroundColorIndex = parseInt(coordinates[0], 10);
+            if (isNaN(backgroundColorIndex) || backgroundColorIndex < 0 || backgroundColorIndex >= colorList.length) {
+                console.error('잘못된 배경색 인덱스입니다:', coordinates[0]);
+                return;
+            }
+
+            // 모든 픽셀 초기화
+            const pixels = pixelBox.querySelectorAll('div.boxes');
+            pixels.forEach((pixel) => {
+                pixel.style.backgroundColor = colorList[backgroundColorIndex]; // 첫 줄에 해당하는 색상으로 초기화
+                pixel.dataset.color = backgroundColorIndex.toString(); // 초기화 색상 인덱스
+            });
+
+            // 좌표 데이터만 처리 (첫 번째 줄 제외)
+            coordinates.slice(1).forEach((coordinate) => {
+                const [x, y, colorIndex] = coordinate.split(',').map(Number);
+                if (x >= 1 && x <= 10 && y >= 1 && y <= 10 && colorIndex >= 0 && colorIndex < colorList.length) {
+                    const pixelIndex = (10 - y) * 10 + (x - 1); // 인덱스 계산
+                    if (pixelIndex < pixels.length) {
+                        const pixel = pixels[pixelIndex];
+                        pixel.style.backgroundColor = colorList[colorIndex];
+                        pixel.dataset.color = colorIndex;
+                    } else {
+                        console.error(`좌표값이 벗어 남: ${pixelIndex}`);
+                    }
+                } else {
+                    console.error('범위를 벗어남:', coordinate);
+                }
+            });
+        }
+
+
+        function movePixels(dx, dy) {
+            // 현재 픽셀 데이터를 수집
+            const pixels = pixelBox.querySelectorAll('div.boxes');
+            const currentColors = Array.from(pixels).map(pixel => pixel.dataset.color);
+
+            // 새로운 위치로 색상을 이동
+            const newColors = Array(100).fill(9); // 기본 색상으로 초기화 (흰색)
+
+            // 좌표 계산 및 이동 적용
+            for (let y = 0; y < 10; y++) {
+                for (let x = 0; x < 10; x++) {
+                    const newX = (x + dx + 10) % 10; // X 좌표 이동
+                    const newY = (y + dy + 10) % 10; // Y 좌표 이동
+                    const oldIndex = y * 10 + x; // 이전 인덱스 계산
+                    const newIndex = newY * 10 + newX; // 새로운 인덱스 계산
+
+                    newColors[newIndex] = currentColors[oldIndex]; // 색상 이동
+                }
+            }
+
+            // 이동한 색상 데이터를 픽셀에 적용
+            pixels.forEach((pixel, index) => {
+                pixel.dataset.color = newColors[index];
+                pixel.style.backgroundColor = colorList[newColors[index]];
+            });
+        }
+
+        function makePixel(n, m, pixelSize, t) {
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.flexWrap = 'wrap';
+            container.style.width = pixelSize * n * 2.5 + 'px';
+
+            for (let i = 0; i < n * m; i++) {
+                const pixel = document.createElement('div');
+                pixel.className = 'boxes'
+                pixel.style.width = pixelSize + 'px';
+                pixel.style.height = pixelSize + 'px';
+                pixel.dataset.color = color
+                pixel.style.backgroundColor = colorList[color]
+
+                // 여기에 픽셀의 스타일을 추가할 수 있습니다. (예: 배경색, 테두리 등)
+                pixel.addEventListener("click", (e) => {
+                    e.target.style.backgroundColor = colorList[color];
+                    e.target.dataset.color = color;
+                })
+                pixel.addEventListener("dblclick", (e) => {
+                    e.target.style.backgroundColor = '#ffffff'
+                    e.target.dataset.color = color
+                })
+                container.appendChild(pixel);
+
+            }
+            t.appendChild(container);
+        }
+
+        function getCoodinated(n) {
+            let result = "";
+            const pixels = pixelBox.querySelectorAll('div.boxes'); // 모든 픽셀 선택
+            pixels.forEach((pixel, index) => {
+                colorIndex = pixel.dataset.color
+                const x = index % 10 + 1;
+                const y = 10 - Math.floor(index / 10);
+                if (colorIndex != n) {
+                    result += `${x},${y},${colorIndex}\n`
+                }
+
+            });
+            return result.trim();
+        }
+
+        function makeColorList() {
+
+            var colorName = ["빨강", "주황", "노랑", "초록", "파랑", "남색", "보라", "핑크", "검정", "흰색"];
+            var colorList = ["#ff0000", "#ff7f00", "#ffff00", "#00ff00", "#0000ff", "#000080", "#800080", "#ff69b4", "#000000", "#ffffff"];
+
+            for (var i = 0; i < 10; i++) {
+                var div = document.createElement("div");
+                div.className = 'color-item'
+                div.style.backgroundColor = colorList[i];
+                div.textContent = i
+                div.addEventListener("click", (e) => {
+                    color = e.target.textContent;
+                    selectBox.style.backgroundColor = colorList[color]
+                })
+                colorBox.appendChild(div);
+
+            }
+        }
+
+        function getMostFrequentColor() {
+            let count = Array(10).fill(0).map((v, i) => [i, 0])
+
+            const pixels = pixelBox.querySelectorAll('div.boxes')
+            pixels.forEach((v) => {
+                count[parseInt(v.dataset.color)][1]++;
+            })
+            return count.sort((a, b) => b[1] - a[1])[0][0]
+
+
+        }
+        // mysql 사용시 
+        // function savePixelArt() {
+        //     const student_id = prompt("학생 아이디를 입력해 주세요.");
+        //     if (!student_id) return;
+
+        //     // Collect pixel data
+        //     const pixels = pixelBox.querySelectorAll('div.boxes');
+        //     const artData = Array.from(pixels).map(pixel => pixel.dataset.color);
+
+        //     // Send data to PHP for saving
+        //     fetch('save_pixel_art.php', {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/x-www-form-urlencoded'
+        //             },
+        //             body: new URLSearchParams({
+        //                 'student_id': student_id,
+        //                 'art_data': JSON.stringify(artData)
+        //             })
+        //         })
+        //         .then(response => response.text())
+        //         .then(data => alert(data))
+        //         .catch(error => console.error('Error:', error));
+        // }
+
+        // function loadPixelArt() {
+        //     const student_id = prompt("학생 아이디를 입력해 주세요.");
+        //     if (!student_id) return;
+
+        //     // Request pixel data from PHP
+        //     fetch(`load_pixel_art.php?student_id=${student_id}`)
+        //         .then(response => response.json())
+        //         .then(artData => {
+        //             if (artData) {
+        //                 // Parse and apply pixel colors
+        //                 const pixels = pixelBox.querySelectorAll('div.boxes');
+        //                 JSON.parse(artData).forEach((colorIndex, i) => {
+        //                     pixels[i].dataset.color = colorIndex;
+        //                     pixels[i].style.backgroundColor = colorList[colorIndex];
+        //                 });
+        //                 alert("픽셀 아트 로딩 성공");
+        //             } else {
+        //                 alert("데이터가 없습니다. ");
+        //             }
+        //         })
+        //         .catch(error => console.error('Error:', error));
+        // }
+
+        // Bind to save/load buttons
+        function savePixelArt() {
+            const studentId = prompt("그림 제목를 입력해 주세요.");
+            if (!studentId) return;
+
+            // Collect pixel data
+            const pixels = pixelBox.querySelectorAll('div.boxes');
+            const artData = Array.from(pixels).map(pixel => pixel.dataset.color);
+
+            // Save data to localStorage
+            localStorage.setItem(studentId, JSON.stringify(artData));
+            alert('픽셀 아트 저장 성공');
+        }
+
+        function loadPixelArt() {
+            const studentId = prompt("그림 제목을 입력해 주세요.");
+            if (!studentId) return;
+
+            // Load data from localStorage
+            const artData = localStorage.getItem(studentId);
+
+            if (artData) {
+                // Parse and apply pixel colors
+                const pixels = pixelBox.querySelectorAll('div.boxes');
+                JSON.parse(artData).forEach((colorIndex, i) => {
+                    pixels[i].dataset.color = colorIndex;
+                    pixels[i].style.backgroundColor = colorList[colorIndex];
+                });
+                alert("픽셀 아트 로딩 성공");
+            } else {
+                alert("데이터가 없습니다.");
+            }
+        }
+
+
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            const number = parseInt(key);
+
+            // 1~9 사이의 숫자 키만 처리
+            // if (!isNaN(number) && number >= 0 && number <= 9) {
+            //     color = number;
+            //     selectBox.style.backgroundColor = colorList[color]
+            // }
+
+            if (key === 'w') {
+                movePixels(0, -1);
+                getPoint()
+            } else if (key === 's') {
+                movePixels(0, 1);
+                getPoint()
+            } else if (key === 'a') {
+                movePixels(-1, 0);
+                getPoint()
+            } else if (key === 'd') {
+                movePixels(1, 0);
+                getPoint()
+            }
+
+
+        });
+
+        document.getElementById('좌표표시').addEventListener('click', () => {
+            const coordinatesText = document.getElementById('txtArea').value;
+            const coordinates = coordinatesText.split('\n').map(line => line.trim()).filter(line => line);
+
+            if (coordinates.length > 0) {
+                drawFromCoordinates(coordinates);
+            } else {
+                console.error('좌표 입력이 잘못되었습니다.');
+            }
+        });
+
+        document.getElementById('txtArea').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                //event.preventDefault(); // 기본 엔터 키 동작(줄바꿈) 방지
+                const coordinatesText = document.getElementById('txtArea').value;
+                const coordinates = coordinatesText.split('\n').map(line => line.trim()).filter(line => line);
+
+                if (coordinates.length > 0) {
+                    drawFromCoordinates(coordinates);
+                } else {
+                    console.error('좌표 입력이 잘못되었습니다.');
+                }
+            }
+        });
+
+
+        // document.getElementById('이동하기').addEventListener('click', (e) => {
+        //     var levelValue = document.getElementById('levelInput').value;
+        //     movePixels(1, levelValue);
+        // })
+        // document.getElementById('levelInput').addEventListener('change', (e) => {
+        //     levelValue = e.target.value
+        //     levelValue ? clearInterval(moveInterval) : null;
+        //     movePixels(1, levelValue);
+        // })
+
+
+        document.getElementById('전부지우기').addEventListener('click', () => 지우기())
+        document.getElementById('지우기').addEventListener('click', () => 지우기())
+        document.getElementById('팔레트').addEventListener('click', () => {
+            const palettes = document.getElementById('propert')
+            palettes.style.display = palettes.style.display === 'none' ? 'block' : 'none';
+
+        })
+
+        
+        function 지우기() {
+            const pixels = pixelBox.querySelectorAll('div.boxes');
+            pixels.forEach((pixel) => {
+                pixel.style.backgroundColor = colorList[9];
+                pixel.dataset.color = 9;
+                color = 9
+                selectBox.style.backgroundColor = colorList[color]
+            });
+            document.getElementById('txtArea').textContent = ""
+        };
+
+        document.getElementById('칠하기').addEventListener('click', (e) => {
+            const pixels = pixelBox.querySelectorAll('div')
+            pixels.forEach((v, i) => {
+                if (i != 0) {
+                    v.style.backgroundColor = colorList[color];
+                    v.dataset.color = color
+                }
+            })
+        })
+
+        document.getElementById('좌표가져오기').addEventListener('click', (e) => {
+            let data = getMostFrequentColor()
+            document.getElementById('txtArea').textContent = data + "\n" + getCoodinated(data)
+        })
+
+        function getPoint() {
+            let data = getMostFrequentColor()
+            document.getElementById('txtArea').textContent = data + "\n" + getCoodinated(data)
+        }
+
+
+
+        function saveCoodinated(data) {
+            localStorage.setItem('coodinate', JSON.stringify(data))
+        }
+
+        function loadCoodinated() {
+            var result = localStorage.getItem('coodinate')
+            return result;
+        }
+
+        document.getElementById('저장하기').addEventListener('click', savePixelArt);
+        document.getElementById('불러오기').addEventListener('click', loadPixelArt);
+
+        document.getElementById('전갈').addEventListener('click', (e) => {
+            document.getElementById('txtArea').textContent = 전갈데이터
+            document.getElementById('좌표표시').click()
+        });
+
+        document.getElementById('소방차').addEventListener('click', (e) => {
+            document.getElementById('txtArea').textContent = 소방차데이터;
+            document.getElementById('좌표표시').click()
+        });
+
+        document.getElementById('꽃').addEventListener('click', (e) => {
+            document.getElementById('txtArea').textContent = 꽃데이터;
+            document.getElementById('좌표표시').click()
+        });
+
+        document.getElementById('딸기').addEventListener('click', (e) => {
+            document.getElementById('txtArea').textContent = 딸기데이터;
+            document.getElementById('좌표표시').click()
+        });
+
+
+        makeColorList()
+        makePixel(10, 10, 20, pixelBox)
+    </script>
+</body>
+
+</html>
