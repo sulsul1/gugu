@@ -3,8 +3,8 @@ class Gugu {
         this.gugudan = Array(10).fill(1).map((v, i) =>
             Array(9).fill(1).map((z, j) => [(i), (j + 1), i * (j + 1), 0])
         );
-        this.guguBox = document.createElement('div');
-
+        
+        this.cnt=0
     }
 
     randomSort(dans = [], isDanRandom = false, isAllRandom = false) {
@@ -25,7 +25,18 @@ class Gugu {
         }
         return result;
     }
-}
+
+    next(){
+     return thi
+    }
+} 
+    
+    
+
+
+    
+
+
 
 // const readline = require('readline');
 // const rl = readline.createInterface({

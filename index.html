@@ -1,18 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>술술구구</title>
-    <script src='colorList.js'></script>
+    <link rel="stylesheet" href="css/main.css">
+    <script src='js/ColorList.js'></script>
     <script src='js/SulSulFrame.js'></script>
-    
+    <script src='js/Gugu.js'></script>
+    <script src='js/MakeButtons.js'></script>
 </head>
+
 <body>
     <script>
+        //변수선언
+        let cnt = 0;
+        let audio = new Audio('audio/tick.mp3')
+        let ddang = new Audio('audio/ddang.wav');
+        let wrongAnswers = []
+        //프레임 만들기
         const frame = new SulSulFrame();
+
         frame.createContainer()
+        frame.setTitle('술술구구')
         frame.createScoreBox()
+        frame.setScoreContainer({ user: '사용자', step: 0, score: 0, timer: 0 })
+        frame.popup(width = "400px", height = "300px", title = "설정을 해 주세요", text = "먼저 공부하고 싶은 단 숫자 [버튼]을 누른 후 마지막으로 [설정] 버튼을 눌러 주세요.", buttons = [{ btn: "확인", funs: null }])
+
+        // main  상자 꾸미기 
+        let bigBlock = document.createElement('div')
+        let block1 = document.createElement('div')
+        let block2 = document.createElement('div')
+        let elementQuiz = document.createElement('div')
+        let elementHint = document.createElement('div')
+        let elementInput = document.createElement('div')
+        let elementButton = document.createElement('div')
+        bigBlock.className = 'bigBlock'
+        block1.className = 'smallBlock'
+        block2.className = 'smallBlock'
+        elementQuiz.className = 'line element-quiz'
+        elementHint.className = 'line element-hint'
+        elementInput.className = 'line element-input'
+        elementButton.className = 'line element-button'
+        block1.appendChild(elementQuiz)
+        block1.appendChild(elementHint)
+        block2.appendChild(elementInput)
+        block2.appendChild(elementButton)
+        bigBlock.appendChild(block1)
+        bigBlock.appendChild(block2)
+        frame.mainBox.appendChild(bigBlock)
+
+        // 단 설정 만들기
+        let buttonContainer = document.createElement('div')
+        
+        let exeBtn = document.createElement('button')
+        let rndBtn = document.createElement('button')
+        rndBtn.textContent = "랜덤"
+        exeBtn.textContent = "설정"
+        buttonContainer.className = 'buttonContainer'
+        rndBtn.className = 'rndBtns'
+        exeBtn.className = 'exeBtn'
+
+        
+
+        frame.bottomBox.appendChild(buttonContainer)
+
+
+        // 처리 함수
+        let gugu = new Gugu()
+        let gugudan = gugu.randomSort([2, 3, 4, 5, 6, 7, 8, 9])
+        let button = new MakeButtons(elementButton, 4, btnCallback)
+        button.make(num = { button: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, '←', 'R'] })
+        let intervalId = null
+
+        function quizInit() {
+            if (intervalId) clearInterval(intervalId)
+            cnt = 0;
+            elementHint.innerHTML = ''
+            frame.popup(width = "400px", height = "300px", title = "시작할까요", text = "지금부터 술술 구구단 학습을 시작합니다.", buttons = [{ btn: "확인", funs: timerStart }])
+
+        }
+
+        function timerStart() {
+            intervalId = setInterval(() => {
+                frame.setScoreContainer(key = { timer: 1 });
+                if (gugudan.length == cnt) quizInit();
+            }, 1000)
+            if (rndBtn.classList.toggle=='active') {
+                gugudan.sort(()=>Math.random()-0.5)
+            }
+            makeQize()
+
+        }
+
+        function btnCallback(e) {
+            var result = elementInput.textContent
+            if (e == '←') {
+                elementInput.textContent = (result + '').slice(0, -1)
+                return
+            }
+            if (e == 'R') {
+                elementInput.textContent = ""
+                frame.ScoreBoxInit()
+                quizInit()
+                return
+            }
+            elementInput.textContent += e;
+            setTimeout(() => {
+                정답확인(elementInput.textContent)
+            }, 300);
+
+        }
+
+        function makeQize() {
+            elementQuiz.innerHTML = gugudan[cnt][0] + ' x ' + gugudan[cnt][1] + ' = '
+        }
+
+        function addWrongAnswer(arr, dan, num) {
+            const existingIndex = arr.findIndex(
+                (answer) => answer[0] === dan && answer[1] === num
+            );
+            if (existingIndex === -1) {
+                arr.push([dan, num, 1]);
+            } else {
+                arr[existingIndex][2]++;
+            }
+        }
+
+        function 정답확인(n) {
+            const answer = gugudan[cnt][2].toString();
+            const input = n.toString();
+
+            if (input.length === answer.length) {
+                if (input === answer) {
+                    audio.play();
+                    cnt++;
+                    frame.setScoreContainer({ score: 2 });
+                    elementInput.style.backgroundColor = '#7FDBFF'
+                    setTimeout(() => { makeQize(); elementInput.textContent = ''; elementInput.style.backgroundColor = 'white' }, 500);
+                } else {
+                    ddang.play()
+                    frame.setScoreContainer({ score: -2 });
+                    elementInput.style.backgroundColor = '#F28E8E'
+                    addWrongAnswer(wrongAnswers, gugudan[cnt][0], gugudan[cnt][1])
+                    //틀린 답을 삽입
+                    elementHint.innerHTML = ''
+                    wrongAnswers.forEach(v => {
+                        let bgcolor
+                        if (v[2] == 1) bgcolor = '#E6EE9C'
+                        else if (v[2] == 2) bgcolor = '#FFD312'
+                        else if (v[2] >= 3) bgcolor = '#FFABAB'
+                        elementHint.innerHTML += `<div class='wrong' style='background-color:${bgcolor}'> ${v[0]} x ${v[1]} = ${v[0] * v[1]}</div> <span> ${v[2]}</span> `
+                    })
+                    setTimeout(() => { elementInput.style.backgroundColor = 'white'; elementInput.textContent = '' }, 500);
+                    ; // 입력 창 초기화
+                }
+            }
+        }
+
+        function createNumberButtons() {
+            for (let i = 2; i <= 9; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.classList.toggle('active');
+                button.addEventListener('click', () => {
+                    button.classList.toggle('active');
+                    
+
+                });
+                buttonContainer.appendChild(button);
+            }
+            buttonContainer.appendChild(exeBtn)
+            buttonContainer.appendChild(rndBtn)
+        }
+
+       
+       
+
+        // 실행 버튼 클릭 이벤트
+        exeBtn.addEventListener('click', () => {
+            try{
+            const activeButtons = buttonContainer.querySelectorAll('button.active:not( #exeBtn, #rndBtn)');
+            const result = [];
+            activeButtons.forEach(button => {
+                result.push(parseInt(button.textContent));
+            });
+             if(result.length == 0) {alert('선택한 것이 없습니다. 다시 설정해 주세요'); return; }
+            gugudan = gugu.randomSort(result)
+            console.log(gugudan)
+            if (rndBtn.classList.toggle='active') {
+                gugudan.sort(()=>Math.random()-0.5)
+            }}
+            catch(e){
+                console.log(Error(e))
+            }
+
+            quizInit();
+        });
+
+        //랜덤버튼을 클릭할 때
+        rndBtn.addEventListener('click', (e) => {
+        
+         rndBtn.classList.toggle('active');
+                    });
+
+
+
+
+
+
+        createNumberButtons();
+
+
+
+
+
+
+
     </script>
+
 </body>
+
 </html>

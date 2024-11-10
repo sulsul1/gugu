@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="js/MakeButtons.js"></script>
+    <script src="js/Gugu.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: inline-block;
+            place-items: center;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        #wrap {
+            display: flex;
+            width: 99vw;
+            height: 50vh;
+        }
+
+        .quizDiv {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            height: 15vh;
+            background-color: aquamarine;
+            width: 100vw;
+            margin: 10px;
+            padding: 10px;
+        }
+
+        .dap {
+            width: 100%;
+            height: 20vh;
+            font-size: 5rem;
+            border: solid 1px #ccc;
+            background-color: antiquewhite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="quiz" class="quizDiv">여기에 문제</div>
+    <div id="inputDap" class="dap"></div>
+
+    <label for="quiz" class="labelDan">단을 입력하세</label>
+    <input type='text' id="inputs" class="input">
+
+    <div id="wrap">
+    </div>
+
+    <script>
+
+        let cnt = 0 // 문제의 위치
+        let container = document.getElementById("wrap");
+        let quiz = document.getElementById("quiz");
+        let inputNumbers = document.getElementById("inputDap");
+        let gugu = new Gugu()
+        let gugudan = gugu.randomSort([2, 3, 4, 5, 6, 7, 8, 9])
+        let buttons = new MakeButtons(container, 4, btnCallback)
+        buttons.make(num = { button: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, '←', 'C'] })
+        let audio = new Audio('audio/tick.mp3')
+        audio.addEventListener('canplaythrough', makeQize())
+
+        function btnCallback(e) {
+            var result = inputNumbers.textContent
+
+            if (e == '←') {
+                inputNumbers.textContent = (result + '').slice(0, -1)
+                return
+            }
+            inputNumbers.textContent += e;
+
+            정답확인(inputNumbers.textContent)
+
+        }
+
+
+        function makeQize() {
+            quiz.innerHTML = gugudan[cnt][0] + ' x ' + gugudan[cnt][1] + ' = '
+
+        }
+
+
+        function 정답확인(n) {
+            if (n == gugudan[cnt][2]) {
+                audio.play()
+                cnt++
+                setTimeout(() => { makeQize(); inputNumbers.textContent = ''}, 500)
+
+
+            }
+            console.log(+n, gugudan[cnt][2]);
+
+        }
+        makeQize()
+
+    </script>
+</body>
+
+</html>
