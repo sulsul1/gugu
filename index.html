@@ -137,7 +137,7 @@
                     cnt++;
                     frame.setScoreContainer({ score: 2 });
                     elementInput.style.backgroundColor = '#7FDBFF'
-                    setTimeout(() => { makeQize(); elementInput.textContent = ''; elementInput.style.backgroundColor = 'white' }, 500);
+                    setTimeout(() => { elementInput.textContent = ''; elementInput.style.backgroundColor = 'white'; makeQuiz()}, 200);
                 } else {
                     ddang.play()
                     frame.setScoreContainer({ score: -2 });
