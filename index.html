@@ -137,7 +137,9 @@
                     cnt++;
                     frame.setScoreContainer({ score: 2 });
                     elementInput.style.backgroundColor = '#7FDBFF'
-                    setTimeout(() => { elementInput.textContent = ''; elementInput.style.backgroundColor = 'white'; makeQuiz()}, 200);
+                    elementInput.textContent = ''; 
+                    elementInput.style.backgroundColor = 'white'; 
+                    makeQuiz();
                 } else {
                     ddang.play()
                     frame.setScoreContainer({ score: -2 });
@@ -152,7 +154,7 @@
                         else if (v[2] >= 3) bgcolor = '#FFABAB'
                         elementHint.innerHTML += `<div class='wrong' style='background-color:${bgcolor}'> ${v[0]} x ${v[1]} = ${v[0] * v[1]}</div> <span> ${v[2]}</span> `
                     })
-                    setTimeout(() => { elementInput.style.backgroundColor = 'white'; elementInput.textContent = '' }, 200);
+                    elementInput.style.backgroundColor = 'white'; elementInput.textContent = '' 
                     ; // 입력 창 초기화
                 }
             }
