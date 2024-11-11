@@ -109,7 +109,7 @@
             elementInput.textContent += e;
             setTimeout(() => {
                 정답확인(elementInput.textContent)
-            }, 300);
+            }, 200);
 
         }
 
@@ -153,7 +153,7 @@
                         else if (v[2] >= 3) bgcolor = '#FFABAB'
                         elementHint.innerHTML += `<div class='wrong' style='background-color:${bgcolor}'> ${v[0]} x ${v[1]} = ${v[0] * v[1]}</div> <span> ${v[2]}</span> `
                     })
-                    setTimeout(() => { elementInput.style.backgroundColor = 'white'; elementInput.textContent = '' }, 500);
+                    setTimeout(() => { elementInput.style.backgroundColor = 'white'; elementInput.textContent = '' }, 200);
                     ; // 입력 창 초기화
                 }
             }
